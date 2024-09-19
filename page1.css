@@ -1,0 +1,125 @@
+/* Basic Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body, html {
+    
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    height: 100%;
+    width: 100%;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    position: relative;
+}
+
+/* Fullscreen background video */
+.video-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: -1; /* Ensure the video is behind other content */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#background-video {
+    width: 125%; /* Adjust this value to zoom in */
+    height: 125%; /* Adjust this value to zoom in */
+    object-fit: cover;
+    transform: scale(1.2); /* Adjust the scale to zoom in */
+    pointer-events: none; /* Prevents interactions with the video */
+}
+
+/* Wrapper styles */
+.wrapper {
+    background: rgba(20, 20, 20, 0.8);
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.5); /* Green neon shadow */
+    text-align: center;
+    width: 90%;
+    max-width: 500px;
+    backdrop-filter: blur(10px);
+    border: 2px solid #0f0; /* Neon green border */
+    position: relative; /* Ensures proper stacking context */
+    z-index: 1; /* Ensure the wrapper is above the background video */
+}
+
+h1 {
+    font-size: 2.5em;
+    margin-bottom: 20px;
+    color: #0f0; /* Neon green */
+    text-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+}
+
+.input-box {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 1.2em;
+    color: #ccc;
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background: #333;
+    color: #fff;
+    font-size: 1em;
+    outline: none;
+    box-shadow: inset 0 0 10px rgba(0, 255, 0, 0.2); /* Green shadow */
+    transition: box-shadow 0.3s ease;
+}
+
+input[type="text"]::placeholder {
+    color: #888;
+}
+
+input[type="text"]:focus {
+    box-shadow: inset 0 0 15px rgba(0, 255, 0, 0.4); /* Brighter green shadow */
+}
+
+button {
+    background: linear-gradient(45deg, #0f0, #00ff7f); /* Green gradient */
+    border: none;
+    color: #222;
+    padding: 15px 30px;
+    border-radius: 8px;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.3s ease;
+}
+
+button:hover {
+    background: linear-gradient(45deg, #00ff7f, #0f0); /* Inverted gradient */
+    transform: scale(1.05);
+}
+
+a button {
+    margin-left: 10px;
+}
+
+a {
+    text-decoration: none;
+}

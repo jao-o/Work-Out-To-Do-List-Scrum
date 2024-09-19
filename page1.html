@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="page1.css"> 
+</head>
+<body>
+
+    <!-- Background Video -->
+    <div class="video-background">
+        <iframe id="background-video" src="https://www.youtube.com/embed/HQfF5XRVXjU?autoplay=1&mute=1&controls=0&showinfo=0&loop=1&playlist=HQfF5XRVXjU" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    </div>
+    
+    <div class="wrapper">
+        <form action="/HeadMainFoot.html" method="post">
+            <h1>Title of App</h1>
+            
+            <div class="input-box">
+                <label>Work out Name</label>
+                <br>
+                <input type="text" placeholder="Ex. Push-up" required>
+            </div>
+            
+            <div class="input-box">
+                <label>Description</label>
+                <br>
+                <input type="text" placeholder="About" required>
+            </div>
+            <br>
+
+            <button type="submit">Add Task</button> 
+            <a href="page2.html">
+                <button type="button">Display Task</button>
+            </a>
+        </form>
+    </div>
+    
+    <script src="page1.js"></script>
+    
+</body>
+</html>
