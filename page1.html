@@ -10,7 +10,7 @@
             const urlParams = new URLSearchParams(window.location.search);
             const error = urlParams.get('error');
             if (error) {
-                alert(error); // Show alert if there's an error
+                alert(decodeURIComponent(error)); // Show alert if there's an error
             }
         };
     </script>
@@ -22,17 +22,14 @@
             <h1>Add Workout Task</h1>
             
             <div class="input-box">
-                <label>Workout Name</label>
-                <br>
-                <input type="text" name="task_name" placeholder="Ex. Push-up" required>
+                <label for="task_name">Workout Name</label>
+                <input type="text" name="task_name" id="task_name" placeholder="Ex. Push-up" required>
             </div>
             
             <div class="input-box">
-                <label>Description</label>
-                <br>
-                <input type="text" name="task_description" placeholder="About" required>
+                <label for="task_description">Description</label>
+                <input type="text" name="task_description" id="task_description" placeholder="About" required>
             </div>
-            <br>
 
             <button type="submit" name="create_task">Add Task</button>
             <a href="page2.php"> <!-- Link to display tasks -->
