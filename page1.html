@@ -3,41 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Add Task</title>
     <link rel="stylesheet" href="page1.css"> 
+    <script>
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const error = urlParams.get('error');
+            if (error) {
+                alert(error); // Show alert if there's an error
+            }
+        };
+    </script>
 </head>
 <body>
 
-    <!-- Background Video -->
-    <div class="video-background">
-        <iframe id="background-video" src="https://www.youtube.com/embed/HQfF5XRVXjU?autoplay=1&mute=1&controls=0&showinfo=0&loop=1&playlist=HQfF5XRVXjU" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-    </div>
-    
     <div class="wrapper">
-        <form action="/HeadMainFoot.html" method="post">
-            <h1>Title of App</h1>
+        <form action="index.php" method="post"> <!-- This submits to index.php -->
+            <h1>Add Workout Task</h1>
             
             <div class="input-box">
-                <label>Work out Name</label>
+                <label>Workout Name</label>
                 <br>
-                <input type="text" placeholder="Ex. Push-up" required>
+                <input type="text" name="task_name" placeholder="Ex. Push-up" required>
             </div>
             
             <div class="input-box">
                 <label>Description</label>
                 <br>
-                <input type="text" placeholder="About" required>
+                <input type="text" name="task_description" placeholder="About" required>
             </div>
             <br>
 
-            <button type="submit">Add Task</button> 
-            <a href="page2.html">
-                <button type="button">Display Task</button>
+            <button type="submit" name="create_task">Add Task</button>
+            <a href="page2.php"> <!-- Link to display tasks -->
+                <button type="button">Display Tasks</button>
             </a>
         </form>
     </div>
-    
-    <script src="page1.js"></script>
-    
+
 </body>
 </html>
