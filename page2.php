@@ -10,9 +10,53 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+// Handle task completion
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['complete_task'])) {
+    $task_id = $_POST['task_id'];
+    $complete_sql = "UPDATE workout_tasks SET completed = 1 WHERE id = ?";
+    $stmt = $conn->prepare($complete_sql);
+    $stmt->bind_param("i", $task_id);
+    $stmt->execute();
+    $stmt->close();
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit();
+}
+
+// Handle task deletion
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['delete_task'])) {
+    $task_id = $_POST['task_id'];
+    $delete_sql = "DELETE FROM workout_tasks WHERE id = ?";
+    $stmt = $conn->prepare($delete_sql);
+    $stmt->bind_param("i", $task_id);
+    $stmt->execute();
+    $stmt->close();
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit();
+}
+
+// Handle task editing
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['edit_task'])) {
+    $task_id = $_POST['task_id'];
+    $task_name = $_POST['task_name'];
+    $task_description = $_POST['task_description'];
+    
+    $update_sql = "UPDATE workout_tasks SET task_name = ?, task_description = ? WHERE id = ?";
+    $stmt = $conn->prepare($update_sql);
+    $stmt->bind_param("ssi", $task_name, $task_description, $task_id);
+    $stmt->execute();
+    $stmt->close();
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit();
+}
+
 // Display tasks
 $sql = "SELECT id, task_name, task_description, completed FROM workout_tasks";
 $result = $conn->query($sql);
+
+// Count completed tasks
+$completed_tasks_sql = "SELECT COUNT(*) FROM workout_tasks WHERE completed = 1";
+$completed_tasks_result = $conn->query($completed_tasks_sql);
+$completed_tasks = $completed_tasks_result->fetch_row()[0];
 ?>
 
 <!DOCTYPE html>
@@ -20,203 +64,90 @@ $result = $conn->query($sql);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Display Tasks</title>
+    <title>Workout Tasks</title>
     <link rel="stylesheet" href="page2.css">
-    <style>
-        /* Basic reset */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #121212; /* Dark background */
-            color: #fff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh; /* Full screen height */
-            padding: 20px;
-        }
-
-        /* Wrapper for task display */
-        .task-display-wrapper {
-            background-color: rgba(20, 20, 20, 0.9); /* Dark translucent background */
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.7); /* Neon green shadow */
-            text-align: center;
-            width: 90%;
-            max-width: 600px;
-            max-height: 80vh; /* Limit the height of the wrapper */
-            overflow-y: auto; /* Adds vertical scrollbar if content exceeds */
-            backdrop-filter: blur(5px); /* Frosted glass effect */
-            border: 2px solid #0f0; /* Neon green border */
-        }
-
-        /* Title styling */
-        h1, h2 {
-            font-size: 2.5rem;
-            color: #0f0; /* Neon green */
-            margin-bottom: 20px;
-            text-shadow: 0 0 10px rgba(0, 255, 0, 0.7); /* Neon glow effect */
-        }
-
-        /* Form inputs styling */
-        input[type="text"] {
-            text-align: center; /* Center align text in input fields */
-            margin-bottom: 10px; /* Space between inputs */
-            width: 80%; /* Set width for input fields */
-            padding: 10px; /* Padding for better aesthetics */
-            border: 2px solid #0f0; /* Neon green border */
-            border-radius: 5px; /* Rounded corners */
-            background-color: #2e2e2e; /* Input background */
-            color: #fff; /* Text color */
-        }
-
-        /* Button styling */
-        input[type="submit"] {
-            background-color: #0f0;
-            color: #121212;
-            padding: 12px 25px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.3s ease;
-            width: 100%; /* Full width for submit button */
-        }
-
-        input[type="submit"]:hover {
-            background-color: #00ff7f;
-            transform: scale(1.05);
-        }
-
-        /* Modal styles */
-        .modal {
-            display: none; 
-            position: fixed; 
-            z-index: 1; 
-            left: 0;
-            top: 0;
-            width: 100%; 
-            height: 100%; 
-            overflow: auto; 
-            background-color: rgba(0, 0, 0, 0.7); 
-            padding-top: 60px; 
-        }
-
-        .modal-content {
-            background-color: #1e1e1e;
-            margin: 5% auto; 
-            padding: 20px;
-            border: 2px solid #0f0; 
-            width: 80%; 
-            max-width: 500px; 
-            border-radius: 8px;
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5); 
-            text-align: center; /* Centering text in the modal */
-        }
-
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-        }
-
-        .close:hover,
-        .close:focus {
-            color: #00ff7f;
-            cursor: pointer;
-        }
-
-        /* Center the labels */
-        label {
-            display: block;
-            margin-bottom: 5px; /* Space between label and input */
-            color: #fff; /* Label color */
-        }
-    </style>
 </head>
 <body>
 
     <div class="task-display-wrapper">
-        <h1>Task List</h1>
-
-        <table id="task-table">
-            <thead>
+        <h1>Workout Tasks</h1>
+        <h2>Completed Workouts: <?php echo $completed_tasks; ?></h2>
+        
+        <!-- Back Button -->
+        <button class="back-button" onclick="window.location.href='page1.html'" style="margin-bottom: 20px; float: left;">Back</button>
+        
+        <table style="clear: both;">
+            <tr>
+                <th>Task Name</th>
+                <th>Task Description</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+            <?php if ($result && $result->num_rows > 0): ?>
+                <?php while ($row = $result->fetch_assoc()): ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($row["task_name"]); ?></td>
+                        <td><?php echo htmlspecialchars($row["task_description"]); ?></td>
+                        <td><?php echo $row["completed"] ? "Completed" : "Not Completed"; ?></td>
+                        <td>
+                            <form method="POST" action="page2.php" style="display:inline;">
+                                <input type="hidden" name="task_id" value="<?php echo $row["id"]; ?>">
+                                <input type="submit" name="complete_task" value="Complete" class="complete-button" <?php echo $row["completed"] ? 'disabled' : ''; ?>>
+                            </form>
+                            <button onclick="openModal('<?php echo $row["id"]; ?>', '<?php echo htmlspecialchars($row["task_name"]); ?>', '<?php echo htmlspecialchars($row["task_description"]); ?>')">Edit</button>
+                            <form method="POST" action="page2.php" style="display:inline;">
+                                <input type="hidden" name="task_id" value="<?php echo $row["id"]; ?>">
+                                <input type="submit" name="delete_task" value="Delete" class="delete-button">
+                            </form>
+                        </td>
+                    </tr>
+                <?php endwhile; ?>
+            <?php else: ?>
                 <tr>
-                    <th>Task Name</th>
-                    <th>Task Description</th>
-                    <th>Status</th>
-                    <th>Action</th>
+                    <td colspan="4">No tasks found.</td>
                 </tr>
-            </thead>
-            <tbody>
-                <?php
-                if ($result->num_rows > 0) {
-                    while ($row = $result->fetch_assoc()) {
-                        echo "<tr>";
-                        echo "<td>" . htmlspecialchars($row["task_name"]) . "</td>";
-                        echo "<td>" . htmlspecialchars($row["task_description"]) . "</td>";
-                        echo "<td>" . ($row["completed"] ? "Completed" : "Incomplete") . "</td>";
-                        echo "<td>";
-                        echo "<button onclick='openEditModal(" . $row["id"] . ", \"" . addslashes($row["task_name"]) . "\", \"" . addslashes($row["task_description"]) . "\")'>Edit</button>";
-                        echo "</td>";
-                        echo "</tr>";
-                    }
-                } else {
-                    echo "<tr><td colspan='4'>No tasks available</td></tr>";
-                }
-                ?>
-            </tbody>
+            <?php endif; ?>
         </table>
     </div>
 
-    <!-- Edit Task Modal -->
+    <!-- Modal for editing tasks -->
     <div id="editModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal()">&times;</span>
-            <h2>Edit Workout</h2>
-            <form method="POST" action="index.php">
-                <input type="hidden" name="task_id" id="edit_task_id">
-                
-                <label for="edit_task_name">Workout Name</label>
-                <input type="text" name="task_name" id="edit_task_name" required>
-                
-                <label for="edit_task_description">Description</label>
-                <input type="text" name="task_description" id="edit_task_description" required>
-
-                <input type="submit" name="update_task" value="Submit">
+            <h2>Edit Task</h2>
+            <form method="POST" action="page2.php">
+                <input type="hidden" id="edit_task_id" name="task_id">
+                <label for="task_name">Task Name:</label>
+                <input type="text" id="task_name" name="task_name" required>
+                <br>
+                <label for="task_description">Task Description:</label>
+                <textarea id="task_description" name="task_description" required></textarea>
+                <br>
+                <input type="submit" name="edit_task" value="Save Changes">
             </form>
         </div>
     </div>
 
     <script>
-        // Open Modal for Editing
-        function openEditModal(id, name, description) {
-            document.getElementById('edit_task_id').value = id;
-            document.getElementById('edit_task_name').value = name;
-            document.getElementById('edit_task_description').value = description;
+        function openModal(taskId, taskName, taskDescription) {
+            document.getElementById('edit_task_id').value = taskId;
+            document.getElementById('task_name').value = taskName;
+            document.getElementById('task_description').value = taskDescription;
             document.getElementById('editModal').style.display = "block";
         }
 
-        // Close Modal
         function closeModal() {
             document.getElementById('editModal').style.display = "none";
         }
 
-        // Close Modal on Outside Click
+        // Close modal if user clicks anywhere outside of it
         window.onclick = function(event) {
-            if (event.target == document.getElementById('editModal')) {
-                document.getElementById('editModal').style.display = "none";
+            const modal = document.getElementById('editModal');
+            if (event.target == modal) {
+                modal.style.display = "none";
             }
         }
     </script>
-    
 </body>
 </html>
 
