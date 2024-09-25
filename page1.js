@@ -1,43 +1,33 @@
+// page1.js
 
-document.addEventListener('DOMContentLoaded', () => {
-    const form = document.querySelector('form');
+// Function to add a workout
+function addWorkout() {
+    const workoutInput = document.getElementById('workout');
+    const descriptionInput = document.getElementById('description');
 
-    form.addEventListener('submit', (event) => {
-        event.preventDefault(); // Prevent the default form submission
+    // Get the values from the inputs
+    const workout = workoutInput.value;
+    const description = descriptionInput.value;
 
-        const workoutName = form.querySelector('input[placeholder="Ex. Push-up"]').value;
-        const description = form.querySelector('input[placeholder="About"]').value;
+    if (workout && description) {
+        // Get existing workouts from local storage
+        const workouts = JSON.parse(localStorage.getItem('workouts')) || [];
 
-        if (workoutName && description) {
-            // Simulate a successful task addition with a futuristic message
-            displaySuccessMessage();
-            form.reset(); // Reset the form after successful submission
-        } else {
-            alert('Please fill in all fields.');
-        }
-    });
+        // Add the new workout to the array
+        workouts.push({ workout, description });
 
-    function displaySuccessMessage() {
-        const successMessage = document.createElement('div');
-        successMessage.textContent = 'Task added successfully!';
-        successMessage.style.position = 'fixed';
-        successMessage.style.bottom = '20px';
-        successMessage.style.left = '50%';
-        successMessage.style.transform = 'translateX(-50%)';
-        successMessage.style.background = '#0ff';
-        successMessage.style.color = '#222';
-        successMessage.style.padding = '10px 20px';
-        successMessage.style.borderRadius = '8px';
-        successMessage.style.boxShadow = '0 0 15px rgba(0, 255, 0, 0.8)';
-        successMessage.style.fontSize = '1.2em';
-        successMessage.style.zIndex = '1000';
-        successMessage.style.opacity = '1';
-        successMessage.style.transition = 'opacity 0.5s ease-out';
-        document.body.appendChild(successMessage);
+        // Save the updated workouts back to local storage
+        localStorage.setItem('workouts', JSON.stringify(workouts));
 
-        setTimeout(() => {
-            successMessage.style.opacity = '0';
-            setTimeout(() => successMessage.remove(), 500);
-        }, 2000);
+        // Clear the input fields
+        workoutInput.value = '';
+        descriptionInput.value = '';
+    } else {
+        alert("Please fill in both fields.");
     }
-});
+}
+
+// Add event listener for the Add button
+if (document.getElementById('add')) {
+    document.getElementById('add').addEventListener('click', addWorkout);
+}
