@@ -3,41 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="page1.css"> 
+    <title>Workout Counter</title>
+    <link rel="stylesheet" href="page1.css">
 </head>
 <body>
-
-    <!-- Background Video -->
-    <div class="video-background">
-        <iframe id="background-video" src="https://www.youtube.com/embed/HQfF5XRVXjU?autoplay=1&mute=1&controls=0&showinfo=0&loop=1&playlist=HQfF5XRVXjU" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-    </div>
-    
-    <div class="wrapper">
-        <form action="/HeadMainFoot.html" method="post">
-            <h1>Title of App</h1>
+    <div class="container">
+        <div class="header">
+            <h1>Workout Counter</h1>
+        </div>
+        <div class="form">
+            <label for="workout">Workout </label>
+            <input type="text" id="workout" name="workout" placeholder="Ex. Pushup" required>
             
-            <div class="input-box">
-                <label>Work out Name</label>
-                <br>
-                <input type="text" placeholder="Ex. Push-up" required>
-            </div>
+            <label for="description">Description </label>
+            <input type="text" id="description" name="description" placeholder="About" required>
             
-            <div class="input-box">
-                <label>Description</label>
-                <br>
-                <input type="text" placeholder="About" required>
+            <div class="buttons">
+                <button id="add">Add</button>
+                <a href="page2.html">
+                    <button id="display">Display Workouts</button>
+                </a>
             </div>
-            <br>
-
-            <button type="submit">Add Task</button> 
-            <a href="page2.html">
-                <button type="button">Display Task</button>
-            </a>
-        </form>
+        </div>
     </div>
-    
+
+    <!-- Link to the external JavaScript file -->
     <script src="page1.js"></script>
-    
 </body>
 </html>

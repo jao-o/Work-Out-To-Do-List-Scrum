@@ -1,42 +1,40 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const form = document.querySelector('form');
+// Function to add a workout
+function addWorkout() {
+    const workoutInput = document.getElementById('workout');
+    const descriptionInput = document.getElementById('description');
 
-    form.addEventListener('submit', (event) => {
-        event.preventDefault(); // Prevent the default form submission
+    // Get the values from the inputs
+    const workout = workoutInput.value;
+    const description = descriptionInput.value;
 
-        const workoutName = form.querySelector('input[placeholder="Ex. Push-up"]').value;
-        const description = form.querySelector('input[placeholder="About"]').value;
-
-        if (workoutName && description) {
-            // Simulate a successful task addition with a futuristic message
-            displaySuccessMessage();
-            form.reset(); // Reset the form after successful submission
-        } else {
-            alert('Please fill in all fields.');
-        }
-    });
-
-    function displaySuccessMessage() {
-        const successMessage = document.createElement('div');
-        successMessage.textContent = 'Task added successfully!';
-        successMessage.style.position = 'fixed';
-        successMessage.style.bottom = '20px';
-        successMessage.style.left = '50%';
-        successMessage.style.transform = 'translateX(-50%)';
-        successMessage.style.background = '#0ff';
-        successMessage.style.color = '#222';
-        successMessage.style.padding = '10px 20px';
-        successMessage.style.borderRadius = '8px';
-        successMessage.style.boxShadow = '0 0 15px rgba(0, 255, 0, 0.8)';
-        successMessage.style.fontSize = '1.2em';
-        successMessage.style.zIndex = '1000';
-        successMessage.style.opacity = '1';
-        successMessage.style.transition = 'opacity 0.5s ease-out';
-        document.body.appendChild(successMessage);
-
-        setTimeout(() => {
-            successMessage.style.opacity = '0';
-            setTimeout(() => successMessage.remove(), 500);
-        }, 2000);
+    if (workout && description) {
+        // Send the workout data to the PHP backend using POST
+        fetch('index.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `task_name=${encodeURIComponent(workout)}&task_description=${encodeURIComponent(description)}`,
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Redirect to page2.html after successful task creation
+                window.location.href = data.redirect_url;
+            } else if (data.status === 'error') {
+                // Display error message (e.g., for duplicate tasks)
+                alert(data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    } else {
+        alert("Please fill in both fields.");
     }
-});
+}
+
+// Add event listener for the Add button on page1.html
+if (document.getElementById('add')) {
+    document.getElementById('add').addEventListener('click', addWorkout);
+}

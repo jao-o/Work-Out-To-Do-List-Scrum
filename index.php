@@ -4,7 +4,6 @@ $servername = "localhost";
 $username = "root";
 $password = "";
 $dbname = "workout_tracker";
-
 $conn = new mysqli($servername, $username, $password, $dbname);
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
@@ -12,13 +11,13 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Create
+// Create Task
 function createTask($conn) {
-    if (isset($_POST['create_task'])) {
+    if (isset($_POST['task_name']) && isset($_POST['task_description'])) {
         $task_name = $_POST['task_name'];
         $task_description = $_POST['task_description'];
 
-        // Duplicate check
+        // Check for duplicate tasks
         $stmt = $conn->prepare("SELECT COUNT(*) FROM workout_tasks WHERE task_name = ? AND task_description = ?");
         $stmt->bind_param("ss", $task_name, $task_description);
         $stmt->execute();
@@ -27,35 +26,31 @@ function createTask($conn) {
         $stmt->close();
 
         if ($count > 0) {
-            return "Task exists.";
+            // Return error message for duplicate task
+            echo json_encode(['status' => 'error', 'message' => 'Task already exists.']);
+            exit();
         } else {
+            // Insert new task
             $stmt = $conn->prepare("INSERT INTO workout_tasks (task_name, task_description) VALUES (?, ?)");
             $stmt->bind_param("ss", $task_name, $task_description);
             $stmt->execute();
             $stmt->close();
-            header("Location: page2.php");
+            // Return success response
+            echo json_encode(['status' => 'success', 'redirect_url' => 'page2.html']);
             exit();
         }
     }
     return null;
 }
 
-// Edit
-function editTask($conn) {
-    if (isset($_POST['edit_task'])) {
-        return $_POST['task_id']; // Return ID
-    }
-    return null;
-}
-
-// Update
+// Handle Task Update
 function updateTask($conn) {
     if (isset($_POST['update_task'])) {
         $task_id = $_POST['task_id'];
         $task_name = $_POST['task_name'];
         $task_description = $_POST['task_description'];
 
-        // Duplicate check
+        // Check for duplicate tasks (exclude the current task)
         $stmt = $conn->prepare("SELECT COUNT(*) FROM workout_tasks WHERE task_name = ? AND task_description = ? AND id != ?");
         $stmt->bind_param("ssi", $task_name, $task_description, $task_id);
         $stmt->execute();
@@ -64,20 +59,22 @@ function updateTask($conn) {
         $stmt->close();
 
         if ($count > 0) {
-            return "Duplicate task.";
+            echo json_encode(['status' => 'error', 'message' => 'Task already exists.']);
+            exit();
         } else {
+            // Update the task
             $stmt = $conn->prepare("UPDATE workout_tasks SET task_name = ?, task_description = ? WHERE id = ?");
             $stmt->bind_param("ssi", $task_name, $task_description, $task_id);
             $stmt->execute();
             $stmt->close();
-            header("Location: index.php");
+            echo json_encode(['status' => 'success', 'redirect_url' => 'page2.html']);
             exit();
         }
     }
     return null;
 }
 
-// Complete
+// Mark Task as Completed
 function markCompleted($conn) {
     if (isset($_POST['mark_completed'])) {
         $task_id = $_POST['task_id'];
@@ -85,25 +82,12 @@ function markCompleted($conn) {
         $stmt->bind_param("i", $task_id);
         $stmt->execute();
         $stmt->close();
-        header("Location: index.php");
-        exit();
     }
 }
 
 $error_message = createTask($conn);
-$task_id = editTask($conn);
 $error_message = updateTask($conn) ?? $error_message;
 markCompleted($conn);
-
-// Display
-$result = $conn->query("SELECT id, task_name, task_description, completed FROM workout_tasks");
-
-// Counter
-$count_stmt = $conn->prepare("SELECT COUNT(*) FROM workout_tasks WHERE completed = 1");
-$count_stmt->execute();
-$count_stmt->bind_result($completed_count);
-$count_stmt->fetch();
-$count_stmt->close();
 
 $conn->close();
 ?>
