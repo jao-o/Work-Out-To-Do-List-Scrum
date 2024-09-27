@@ -1,6 +1,5 @@
-// page2.js
-
 let currentEditingIndex = null; // Variable to track the current editing workout index
+let workoutToDeleteIndex = null; // Variable to track the workout to delete
 
 // Function to display workouts
 function displayWorkouts() {
@@ -19,7 +18,8 @@ function displayWorkouts() {
 
         const workoutCell = document.createElement('td');
         // Adding icon and workout name
-        workoutCell.innerHTML = `<i class="fas fa-pencil-alt edit-icon" data-index="${index}"></i> ${item.workout}`;
+        workoutCell.innerHTML = `<i class="fas fa-pencil-alt edit-icon" data-index="${index}"></i> ${item.workout}
+                                 <i class="fas fa-trash-alt delete-icon" data-index="${index}"></i>`; // Added delete icon
 
         const descriptionCell = document.createElement('td');
         descriptionCell.textContent = item.description;
@@ -40,8 +40,7 @@ function displayWorkouts() {
                 item.completed = true; // Update completed status
 
                 // Update completed workouts count
-                const completedCount = parseInt(completedCountLabel.textContent.match(/\d+/)[0]) + 1;
-                completedCountLabel.textContent = `Completed Workouts: ${completedCount}`;
+                updateCompletedCount();
             }
         });
 
@@ -54,8 +53,8 @@ function displayWorkouts() {
         workoutList.appendChild(row);
     });
 
-    // Update the completed workouts count at the start
-    completedCountLabel.textContent = `Completed Workouts: ${workouts.filter(item => item.completed).length || 0}`;
+    // Initial update of the completed workouts count
+    updateCompletedCount();
 
     // Add click event to edit icons
     document.querySelectorAll('.edit-icon').forEach(icon => {
@@ -64,49 +63,87 @@ function displayWorkouts() {
             openEditModal(workouts[index], index); // Open modal with workout data
         });
     });
+
+    // Add click event to delete icons
+    document.querySelectorAll('.delete-icon').forEach(icon => {
+        icon.addEventListener('click', (event) => {
+            workoutToDeleteIndex = event.target.dataset.index; // Store the index to delete
+            openDeleteModal(); // Open delete confirmation modal
+        });
+    });
 }
 
-// Function to open the edit modal
+// Function to update completed workouts count
+function updateCompletedCount() {
+    const completedCountLabel = document.getElementById('completed-count');
+    const workouts = JSON.parse(localStorage.getItem('workouts')) || [];
+    const completedCount = workouts.filter(item => item.completed).length;
+    completedCountLabel.textContent = `Completed Workouts: ${completedCount}`;
+}
+
+// Function to open edit modal
 function openEditModal(workout, index) {
-    const modal = document.getElementById('editModal');
-    const workoutInput = document.getElementById('edit-workout');
-    const descriptionInput = document.getElementById('edit-description');
-    const submitButton = document.getElementById('submit-edit');
-    const closeButton = document.querySelector('.close');
+    const editModal = document.getElementById('editModal');
+    const editWorkoutInput = document.getElementById('edit-workout');
+    const editDescriptionInput = document.getElementById('edit-description');
 
-    // Fill the modal with current workout details
-    workoutInput.value = workout.workout;
-    descriptionInput.value = workout.description;
+    editWorkoutInput.value = workout.workout;
+    editDescriptionInput.value = workout.description;
 
-    currentEditingIndex = index; // Set current editing index
-    modal.style.display = 'block'; // Show the modal
-
-    // Close modal on clicking close button
-    closeButton.onclick = () => {
-        modal.style.display = 'none';
-    };
-
-    // Close modal on clicking outside of modal
-    window.onclick = (event) => {
-        if (event.target == modal) {
-            modal.style.display = 'none';
-        }
-    };
-
-    // Handle submit for editing workout
-    submitButton.onclick = () => {
-        workout.workout = workoutInput.value; // Update workout name
-        workout.description = descriptionInput.value; // Update description
-
-        // Save updated workouts back to local storage
-        const workouts = JSON.parse(localStorage.getItem('workouts')) || [];
-        workouts[index] = workout; // Update the specific workout
-        localStorage.setItem('workouts', JSON.stringify(workouts));
-
-        modal.style.display = 'none'; // Close the modal
-        displayWorkouts(); // Refresh the displayed workouts
-    };
+    currentEditingIndex = index; // Set the current editing index
+    editModal.style.display = 'block'; // Show the edit modal
 }
+
+// Function to close edit modal
+function closeEditModal() {
+    const editModal = document.getElementById('editModal');
+    editModal.style.display = 'none';
+}
+
+// Function to submit edited workout
+function submitEdit() {
+    const workouts = JSON.parse(localStorage.getItem('workouts')) || [];
+    const editWorkoutInput = document.getElementById('edit-workout');
+    const editDescriptionInput = document.getElementById('edit-description');
+
+    workouts[currentEditingIndex] = {
+        workout: editWorkoutInput.value,
+        description: editDescriptionInput.value,
+        completed: workouts[currentEditingIndex].completed
+    };
+
+    localStorage.setItem('workouts', JSON.stringify(workouts)); // Update local storage
+    displayWorkouts(); // Refresh the workout list
+    closeEditModal(); // Close the edit modal
+}
+
+// Function to open delete confirmation modal
+function openDeleteModal() {
+    const deleteModal = document.getElementById('deleteModal');
+    deleteModal.style.display = 'block';
+}
+
+// Function to close delete confirmation modal
+function closeDeleteModal() {
+    const deleteModal = document.getElementById('deleteModal');
+    deleteModal.style.display = 'none';
+}
+
+// Function to delete the workout
+function deleteWorkout() {
+    const workouts = JSON.parse(localStorage.getItem('workouts')) || [];
+    workouts.splice(workoutToDeleteIndex, 1); // Remove the workout
+    localStorage.setItem('workouts', JSON.stringify(workouts)); // Update local storage
+    displayWorkouts(); // Refresh the workout list
+    closeDeleteModal(); // Close the delete modal
+}
+
+// Event listeners for modal buttons
+document.getElementById('confirm-delete').addEventListener('click', deleteWorkout);
+document.getElementById('cancel-delete').addEventListener('click', closeDeleteModal);
+document.getElementById('closeDeleteModal').addEventListener('click', closeDeleteModal);
+document.getElementById('submit-edit').addEventListener('click', submitEdit);
+document.getElementById('closeEditModal').addEventListener('click', closeEditModal);
 
 // Display workouts when page2.html is loaded
 if (document.getElementById('workout-items')) {

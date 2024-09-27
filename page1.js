@@ -6,15 +6,23 @@ function addWorkout() {
     const descriptionInput = document.getElementById('description');
 
     // Get the values from the inputs
-    const workout = workoutInput.value;
-    const description = descriptionInput.value;
+    const workout = workoutInput.value.trim();  // Trim whitespace
+    const description = descriptionInput.value.trim();  // Trim whitespace
 
     if (workout && description) {
         // Get existing workouts from local storage
         const workouts = JSON.parse(localStorage.getItem('workouts')) || [];
 
-        // Add the new workout to the array
-        workouts.push({ workout, description });
+        // Check for duplicates (only for workout name)
+        const duplicate = workouts.some(item => item.workout.toLowerCase() === workout.toLowerCase());
+
+        if (duplicate) {
+            alert("This workout already exists. Please enter a different workout.");
+            return;  // Exit the function to prevent adding the duplicate
+        }
+
+        // Add the new workout to the array with a default status of "Pending"
+        workouts.push({ workout, description, completed: false }); // Set completed to false
 
         // Save the updated workouts back to local storage
         localStorage.setItem('workouts', JSON.stringify(workouts));
