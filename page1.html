@@ -3,31 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Workout Counter</title>
+    <title>Workout Tracker</title>
     <link rel="stylesheet" href="page1.css">
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>Workout Counter</h1>
-        </div>
-        <div class="form">
-            <label for="workout">Workout </label>
-            <input type="text" id="workout" name="workout" placeholder="Ex. Pushup" required>
-            
-            <label for="description">Description </label>
-            <input type="text" id="description" name="description" placeholder="About" required>
-            
-            <div class="buttons">
-                <button id="add">Add</button>
-                <a href="page2.html">
-                    <button id="display">Display Workouts</button>
-                </a>
-            </div>
-        </div>
+        <h1>Workout Tracker</h1>
+        <form id="taskForm">
+            <input type="text" id="task_name" name="task_name" placeholder="Task Name" required>
+            <textarea id="task_description" name="task_description" placeholder="Task Description" required></textarea>
+            <input type="hidden" id="task_id" name="task_id" value="">
+            <button type="submit">Add Task</button>
+        </form>
+
+        <h2>Your Workouts</h2>
+        <table id="workoutTable">
+            <thead>
+                <tr>
+                    <th>Done</th>
+                    <th>Task Name</th>
+                    <th>Task Description</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Workout tasks will be dynamically populated here -->
+            </tbody>
+        </table>
+        
+        <h3>Completed Workouts: <span id="completedCount">0</span></h3>
     </div>
 
-    <!-- Link to the external JavaScript file -->
-    <script src="page1.js"></script>
+    <script>
+        document.getElementById('taskForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            fetch('fetch_workouts.php', {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    loadWorkouts();
+                    clearForm();
+                } else {
+                    alert(data.message);
+                }
+            });
+        });
+
+        function loadWorkouts() {
+            fetch('fetch_workouts.php')
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.getElementById('workoutTable').querySelector('tbody');
+                    tbody.innerHTML = '';
+                    let completedCount = 0;
+                    data.forEach(workout => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td><input type="checkbox" ${workout.completed ? 'checked' : ''} onchange="markAsDone(${workout.id}, this.checked)"></td>
+                            <td>${workout.task_name}</td>
+                            <td>${workout.task_description}</td>
+                            <td>
+                                <button onclick="editTask(${workout.id}, '${workout.task_name}', '${workout.task_description}')">Edit</button>
+                                <button onclick="deleteTask(${workout.id})">Delete</button>
+                            </td>
+                        `;
+                        tbody.appendChild(row);
+                        if (workout.completed) {
+                            completedCount++;
+                        }
+                    });
+                    document.getElementById('completedCount').textContent = completedCount;
+                });
+        }
+
+        function markAsDone(id, isChecked) {
+            const formData = new FormData();
+            formData.append('mark_completed', true);
+            formData.append('task_id', id);
+            formData.append('completed', isChecked ? 1 : 0);
+
+            fetch('fetch_workouts.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    loadWorkouts();
+                } else {
+                    alert(data.message);
+                }
+            });
+        }
+
+        function editTask(id, name, description) {
+            document.getElementById('task_id').value = id;
+            document.getElementById('task_name').value = name;
+            document.getElementById('task_description').value = description;
+        }
+
+        function deleteTask(id) {
+            const formData = new FormData();
+            formData.append('delete_task', true);
+            formData.append('task_id', id);
+
+            fetch('fetch_workouts.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    loadWorkouts();
+                } else {
+                    alert(data.message);
+                }
+            });
+        }
+
+        function clearForm() {
+            document.getElementById('task_id').value = '';
+            document.getElementById('task_name').value = '';
+            document.getElementById('task_description').value = '';
+        }
+
+        loadWorkouts(); // Load workouts on page load
+    </script>
 </body>
 </html>

@@ -1,40 +1,78 @@
-// Function to add a workout
+document.addEventListener("DOMContentLoaded", function () {
+    // Add event listener to the form for adding workouts
+    const form = document.getElementById("workout-form");
+    form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        addWorkout();
+    });
+
+    // Add event listener for the display button
+    const displayButton = document.getElementById("display-button");
+    displayButton.addEventListener("click", function () {
+        window.location.href = 'page2.html'; // Navigate to the display page
+    });
+});
+
+// Add a new workout
 function addWorkout() {
-    const workoutInput = document.getElementById('workout');
-    const descriptionInput = document.getElementById('description');
+    const taskName = document.getElementById("task_name").value;
+    const taskDescription = document.getElementById("task_description").value;
 
-    // Get the values from the inputs
-    const workout = workoutInput.value;
-    const description = descriptionInput.value;
+    const formData = new FormData();
+    formData.append("task_name", taskName);
+    formData.append("task_description", taskDescription);
 
-    if (workout && description) {
-        // Send the workout data to the PHP backend using POST
-        fetch('index.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: `task_name=${encodeURIComponent(workout)}&task_description=${encodeURIComponent(description)}`,
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                // Redirect to page2.html after successful task creation
-                window.location.href = data.redirect_url;
-            } else if (data.status === 'error') {
-                // Display error message (e.g., for duplicate tasks)
-                alert(data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
-    } else {
-        alert("Please fill in both fields.");
-    }
+    fetch('index.php', {
+        method: 'POST',
+        body: formData,
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert('Workout added successfully!');
+            document.getElementById("workout-form").reset(); // Clear the form
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(error => console.error('Error adding workout:', error));
 }
+document.addEventListener("DOMContentLoaded", function () {
+    // Add event listener to the form for adding workouts
+    const form = document.getElementById("workout-form");
+    form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        addWorkout();
+    });
 
-// Add event listener for the Add button on page1.html
-if (document.getElementById('add')) {
-    document.getElementById('add').addEventListener('click', addWorkout);
+    // Add event listener for the display button
+    const displayButton = document.getElementById("display-button");
+    displayButton.addEventListener("click", function () {
+        window.location.href = 'page2.html'; // Navigate to the display page
+    });
+});
+
+// Add a new workout
+function addWorkout() {
+    const taskName = document.getElementById("task_name").value;
+    const taskDescription = document.getElementById("task_description").value;
+
+    const formData = new FormData();
+    formData.append("task_name", taskName);
+    formData.append("task_description", taskDescription);
+
+    fetch('index.php', {
+        method: 'POST',
+        body: formData,
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert('Workout added successfully!');
+            document.getElementById("workout-form").reset(); // Clear the form
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(error => console.error('Error adding workout:', error));
 }
