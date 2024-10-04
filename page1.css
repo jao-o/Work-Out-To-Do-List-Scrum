@@ -1,75 +1,78 @@
-/* General styles */
 body {
-    font-family: 'Arial', sans-serif;
-    background-color: #f0f0f0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+    background-color: #1a1a1a; 
+    color: #00ff00; 
+    font-family: Arial, sans-serif;
     margin: 0;
-}
-
-/* Container styling */
-.container {
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    padding: 30px;
-    width: 400px;
-}
-
-/* Header styling */
-.header {
-    background-color: #4a90e2;
-    padding: 15px;
-    border-radius: 6px 6px 0 0;
-    text-align: center;
-}
-
-.header h1 {
-    margin: 0;
-    color: white;
-    font-size: 1.5em;
-}
-
-/* Form elements styling */
-.form {
     padding: 20px;
 }
 
-.form label {
-    display: block;
-    margin-bottom: 8px;
-    font-size: 1.1em;
-    color: #333;
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 2px solid #00ff00; 
+    border-radius: 10px;
+    background-color: #2a2a2a; 
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.5); 
 }
 
-.form input[type="text"] {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 20px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 1em;
+h1, h2 {
+    text-align: center;
+    text-shadow: 0 0 5px #00ff00; 
 }
 
-/* Button styling */
-.buttons {
+form {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    margin-bottom: 20px;
 }
 
-.buttons button {
-    padding: 10px 20px;
-    font-size: 1em;
+input[type="text"], textarea {
+    border: 2px solid #00ff00; 
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #1a1a1a; 
+    color: #fff;
+    transition: border-color 0.3s; 
+}
+
+input[type="text"]:focus, textarea:focus {
+    border-color: #80ff80; /* Lighter green on focus */
+    outline: none;
+}
+
+button {
+    background-color: #00ff00; 
+    color: #000; 
     border: none;
-    border-radius: 4px;
+    border-radius: 5px;
+    padding: 10px;
     cursor: pointer;
-    background-color: #4a90e2;
-    color: white;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, transform 0.3s; 
 }
 
-.buttons button:hover {
-    background-color: #357ABD;
+button:hover {
+    background-color: #80ff80; 
+    transform: scale(1.05); 
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    border: 2px solid #00ff00; 
+    padding: 10px;
+    text-align: left;
+}
+
+th {
+    background-color: #00cc00;
+}
+
+tbody tr:hover {
+    background-color: rgba(0, 255, 0, 0.2); 
 }
